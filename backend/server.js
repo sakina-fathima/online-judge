@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
 const fs = require("fs");
 const { spawn } = require("child_process");
+require("dotenv").config();
 
 const app = express();
 app.use(cors());
