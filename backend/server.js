@@ -12,15 +12,20 @@ app.use(cors());
 app.use(express.json());
 
 // ================= DATABASE =================
-
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    })
+  : new Pool({
+      user: process.env.DB_USER,
+      host: process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      password: process.env.DB_PASSWORD,
+      port: process.env.DB_PORT,
+    });
 // ✅ DB CHECK
 pool.connect((err, client, release) => {
   if (err) {
@@ -380,6 +385,9 @@ app.get("/", (req, res) => {
 
 // ================= ADD PROBLEM =================
 app.post("/add-problem", async (req, res) => {
+  console.log("ADD PROBLEM API HIT");
+  console.log("BODY:", req.body);
+
   const {
     title,
     description,
@@ -409,6 +417,8 @@ app.post("/add-problem", async (req, res) => {
       msg: "Problem and test case added successfully",
     });
   } catch (err) {
+    console.log("ADD PROBLEM ERROR:", err);
+
     res.status(500).json({
       msg: err.message,
     });
@@ -498,5 +508,7 @@ app.get("/leaderboard", async (req, res) => {
 });
 // ================= START =================
 app.listen(5000, () => {
-  console.log("🚀 Server running on http://localhost:5000");
+  console.log(
+    "🚀 Server running on http://online-judge-tmxg.onrender.com:5000",
+  );
 });

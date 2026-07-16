@@ -7,12 +7,12 @@ function App() {
   const [email, setEmail] = useState("");
 
   const fetchUsers = async () => {
-    const res = await axios.get("http://localhost:5000/users");
+    const res = await axios.get("https://online-judge-tmxg.onrender.com/users");
     setUsers(res.data);
   };
 
   const addUser = async () => {
-    await axios.post("http://localhost:5000/users", {
+    await axios.post("https://online-judge-tmxg.onrender.com/users", {
       name,
       email,
     });
@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div style={{ padding: "40px" }}>
-      <h2>User Management</h2>
+      <h2>TEST APP CHANGED</h2>
 
       <input
         placeholder="Name"

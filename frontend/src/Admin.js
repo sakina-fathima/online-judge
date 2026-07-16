@@ -13,12 +13,15 @@ function Admin() {
 
   const addProblem = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/add-problem", {
-        title,
-        description,
-        difficulty,
-        expected_output: expectedOutput,
-      });
+      const res = await axios.post(
+        "https://online-judge-tmxg.onrender.com/add-problem",
+        {
+          title,
+          description,
+          difficulty,
+          expected_output: expectedOutput,
+        },
+      );
 
       alert(res.data.msg);
 
@@ -33,7 +36,9 @@ function Admin() {
 
   const fetchProblems = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/problems");
+      const res = await axios.get(
+        "https://online-judge-tmxg.onrender.com/problems",
+      );
       setProblems(res.data);
     } catch (err) {
       console.log(err);
@@ -46,7 +51,7 @@ function Admin() {
   const deleteProblem = async (id) => {
     try {
       const res = await axios.delete(
-        `http://localhost:5000/delete-problem/${id}`,
+        `https://online-judge-tmxg.onrender.com/delete-problem/${id}`,
       );
 
       alert(res.data.msg);
@@ -58,12 +63,15 @@ function Admin() {
   };
   const updateProblem = async (id) => {
     try {
-      const res = await axios.put(`http://localhost:5000/edit-problem/${id}`, {
-        title,
-        description,
-        difficulty,
-        expected_output: expectedOutput,
-      });
+      const res = await axios.put(
+        `https://online-judge-tmxg.onrender.com/edit-problem/${id}`,
+        {
+          title,
+          description,
+          difficulty,
+          expected_output: expectedOutput,
+        },
+      );
 
       alert(res.data.msg);
 
