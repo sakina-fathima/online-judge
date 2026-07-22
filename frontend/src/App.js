@@ -3,6 +3,7 @@ import Admin from "./Admin";
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import "./App.css";
+import logo from "./logo.png";
 
 function App() {
   const API = process.env.REACT_APP_API || "http://localhost:5000";
@@ -199,8 +200,7 @@ function App() {
     return (
       <div className="login-page">
         <div className="login-card">
-          <img src="/logo.png" alt="Logo" className="login-logo" />
-
+          <img src={logo} alt="Logo" className="login-logo" />
           <h1>Online Judge</h1>
           <p className="subtitle">Practice • Compete • Improve</p>
 
