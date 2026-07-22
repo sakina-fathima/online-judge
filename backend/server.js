@@ -6,6 +6,7 @@ const { Pool } = require("pg");
 const fs = require("fs");
 const { spawn } = require("child_process");
 require("dotenv").config();
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 const app = express();
 app.use(cors());
@@ -57,29 +58,17 @@ const auth = (req, res, next) => {
 // ================= CODE EXECUTION =================
 function runCode(file, exe, language, input) {
   return new Promise((resolve) => {
-    let compile;
-
-    if (language === "c") {
-      compile = spawn("gcc", [file, "-o", exe]);
-    } else if (language === "cpp") {
-      compile = spawn("g++", [file, "-o", exe]);
-    } else if (language === "python") {
+    if (language === "python") {
       const runPy = spawn("python", [file]);
 
       let output = "";
       let error = "";
 
-      runPy.stdout.on("data", (data) => {
-        output += data.toString();
-      });
+      runPy.stdout.on("data", (data) => (output += data.toString()));
+      runPy.stderr.on("data", (data) => (error += data.toString()));
 
-      runPy.stderr.on("data", (data) => {
-        console.log("PYTHON ERROR:", data.toString());
-        error += data.toString();
-      });
-
-      if (input) {
-        runPy.stdin.write(input + "\n");
+      if (input !== null && input !== undefined && input !== "") {
+        runPy.stdin.write(input);
       }
 
       runPy.stdin.end();
@@ -89,47 +78,43 @@ function runCode(file, exe, language, input) {
       });
 
       return;
+    }
+
+    let compiler;
+
+    if (language === "c") {
+      compiler = spawn("gcc", [file, "-o", exe]);
+    } else if (language === "cpp") {
+      compiler = spawn("g++", [file, "-o", exe]);
     } else {
       return resolve({
         error: "Unsupported language",
       });
     }
 
-    // ===== COMPILE =====
     let compileError = "";
 
-    compile.stderr.on("data", (data) => {
+    compiler.stderr.on("data", (data) => {
       compileError += data.toString();
     });
 
-    compile.on("close", (code) => {
+    compiler.on("close", (code) => {
       if (code !== 0) {
         return resolve({
-          error: compileError || "Compilation Error",
+          error: compileError,
         });
       }
 
-      const run = spawn(process.platform === "win32" ? exe : `./${exe}`);
+      const run = spawn(exe);
 
       let output = "";
       let error = "";
 
-      run.stdout.on("data", (data) => {
-        output += data.toString();
-      });
+      run.stdout.on("data", (data) => (output += data.toString()));
+      run.stderr.on("data", (data) => (error += data.toString()));
 
-      run.stderr.on("data", (data) => {
-        error += data.toString();
-      });
-
-      run.on("error", (err) => {
-        resolve({
-          error: err.message,
-        });
-      });
-
-      if (input) {
-        run.stdin.write(input + "\n");
+      if (input !== null && input !== undefined && input !== "") {
+        run.stdin.write(input);
       }
 
       run.stdin.end();
@@ -252,6 +237,8 @@ app.post("/run", auth, async (req, res) => {
 
 // ================= SUBMIT =================
 app.post("/submit", auth, async (req, res) => {
+  console.log("========== SUBMIT HIT ==========");
+  console.log(req.body);
   console.log("SUBMIT API HIT");
   console.log("BODY:", req.body);
 
@@ -277,6 +264,9 @@ app.post("/submit", auth, async (req, res) => {
     let finalOutput = "";
 
     for (const t of cases) {
+      console.log("TEST CASE:", t);
+      console.log("INPUT SENT TO PROGRAM:", JSON.stringify(t.input));
+      console.log("EXPECTED OUTPUT:", JSON.stringify(t.output));
       const id = Date.now() + Math.random();
 
       const file =
@@ -289,7 +279,8 @@ app.post("/submit", auth, async (req, res) => {
       const exe = `temp_${id}.exe`;
 
       fs.writeFileSync(file, code);
-
+      console.log("INPUT BEING SENT:", JSON.stringify(t.input));
+      console.log("EXPECTED OUTPUT:", JSON.stringify(t.output));
       const result = await runCode(file, exe, language, t.input);
 
       console.log("TEST RESULT:", result);
