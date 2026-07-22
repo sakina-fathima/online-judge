@@ -5,8 +5,7 @@ import axios from "axios";
 import "./App.css";
 
 function App() {
-  const API = "http://localhost:5000";
-
+  const API = "https://online-judge-tmxg.onrender.com";
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

@@ -60,9 +60,9 @@ function runCode(file, exe, language, input) {
     let compile;
 
     if (language === "c") {
-      compile = spawn("gcc", [file, "-o", exe, "-mconsole"]);
+      compile = spawn("gcc", [file, "-o", exe]);
     } else if (language === "cpp") {
-      compile = spawn("g++", [file, "-o", exe, "-mconsole"]);
+      compile = spawn("g++", [file, "-o", exe]);
     } else if (language === "python") {
       const runPy = spawn("python", [file]);
 
@@ -109,11 +109,8 @@ function runCode(file, exe, language, input) {
         });
       }
 
-      // ===== RUN =====
-      console.log("NEW CODE LOADED");
-      console.log("Running EXE:", exe);
+      const run = spawn(process.platform === "win32" ? exe : `./${exe}`);
 
-      const run = spawn(`./${exe}`);
       let output = "";
       let error = "";
 
@@ -126,11 +123,11 @@ function runCode(file, exe, language, input) {
       });
 
       run.on("error", (err) => {
-        console.log("EXE ERROR:", err);
         resolve({
           error: err.message,
         });
       });
+
       if (input) {
         run.stdin.write(input + "\n");
       }
@@ -142,7 +139,7 @@ function runCode(file, exe, language, input) {
       });
     });
   });
-}
+} // ================= CODE EXECUTION =================
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
